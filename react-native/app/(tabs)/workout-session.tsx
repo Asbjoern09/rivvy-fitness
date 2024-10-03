@@ -6,7 +6,7 @@ import WorkoutItem from "../../components/workout-components/WorkoutItem";
 const Workout: React.FC = () => {
   const colorScheme = useColorScheme(); // Detect color scheme
 
-  const styles = getStyles(colorScheme); // Get styles based on color scheme
+  const styles = getStyles(colorScheme as "light" | "dark" | null); // Assert type
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
