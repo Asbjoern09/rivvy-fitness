@@ -1,16 +1,27 @@
-// src/server.ts
-
 import express from 'express';
-import { getUsers, getUserById } from './userController'; // Import user logic
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import bodyParser from 'body-parser';
+import authRoutes from './routes/authRoutes';
+import userRoutes from './routes/userRoutes';
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Endpoint to get all users
-app.get('/api/users', getUsers);
+// Middleware to parse JSON request bodies
+app.use(bodyParser.json());
 
-// Endpoint to get a user by ID
-app.get('/api/users/:id', getUserById);
+// MongoDB Connection
+mongoose
+  .connect(process.env.MONGO_URI!)
+  .then(() => console.log('MongoDB connected'))
+  .catch((err) => console.log('MongoDB connection error:', err));
+
+
+app.use('/api/auth', authRoutes);
+app.use('/api', userRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
