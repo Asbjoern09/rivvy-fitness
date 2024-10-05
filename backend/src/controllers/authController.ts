@@ -9,7 +9,7 @@ interface RegisterRequestBody {
 }
 
 interface LoginRequestBody {
-  email: string;
+  name: string;
   password: string;
 }
 
@@ -49,9 +49,9 @@ export const loginUser = async (
   next: NextFunction
 ) => {
   try {
-    const { email, password } = req.body;
+    const { name, password } = req.body;
 
-    const user = await User.findOne({ email }) as IUser | null;
+    const user = await User.findOne({ name }) as IUser | null;
     
     if (!user || !(await user.matchPassword(password))) {
       res.status(401).json({ message: 'Invalid email or password' });
