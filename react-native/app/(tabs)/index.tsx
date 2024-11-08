@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import {
   Image,
   StyleSheet,
-  Platform,
-  ActivityIndicator,
+  Button,
+  View,
+  TouchableOpacity,
   Text,
 } from "react-native";
 
@@ -11,30 +12,28 @@ import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { fetchData } from "@/api/fetchData"; // Import the fetchData function
-import { ApiResponse } from "@/api/types"; // Import the interface
+
+import { useAuth } from "@/contexts/AuthContext";
+import Toast from "react-native-toast-message";
+import { getUserInfo } from "@/api/auth/api";
+import { showInfoToast } from "@/components/toast";
 
 export default function HomeScreen() {
-  const [apiData, setApiData] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    logout();
+    showInfoToast("Logged out", "You have been successfully logged out.");
+  };
 
   useEffect(() => {
-    const getData = async () => {
-      setLoading(true);
-      try {
-        const data: ApiResponse = await fetchData(); // Specify the type of data
-        console.log(data);
-        setApiData(data.message); // Accessing the message property safely
-      } catch (err) {
-        // Use type assertion to treat err as an Error object
-        setError((err as Error).message); // Cast the error to Error type
-      } finally {
-        setLoading(false);
-      }
+    const fetchUserInfo = async () => {
+      const userInfo = await getUserInfo();
+      setUsername(userInfo.name);
     };
 
-    getData();
+    fetchUserInfo();
   }, []);
 
   return (
@@ -47,72 +46,47 @@ export default function HomeScreen() {
         />
       }
     >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-
-      {/* API Call Result Section */}
-      <ThemedView style={styles.apiDataContainer}>
-        {loading ? (
-          <ActivityIndicator size="large" color="#00000" />
-        ) : error ? (
-          <ThemedText type="error">Error: {error}</ThemedText>
-        ) : (
-          <ThemedText style={styles.text}>{apiData}</ThemedText>
-        )}
-        <Text> hello</Text>
-      </ThemedView>
-
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          to see changes. Press{" "}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: "cmd + d", android: "cmd + m" })}
-          </ThemedText>{" "}
-          to open developer tools.
+      <ThemedView style={styles.container}>
+        <ThemedText type="title" style={styles.titleText}>
+          Hello {username}
         </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
         <ThemedText>
-          Tap the Explore tab to learn more about what's included in this
-          starter app.
+          Welcome to Native Wheels! Discover the perfect vehicle for your
+          journey. Whether you’re planning a road trip or need a ride for the
+          day, we’ve got you covered. Let’s get you on the road!
         </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{" "}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText>{" "}
-          to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
-          directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
+        <TouchableOpacity style={styles.button} onPress={handleLogout}>
+          <Text style={styles.buttonText}>Sign Out</Text>
+        </TouchableOpacity>
       </ThemedView>
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
+  container: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    gap: 8,
+    paddingVertical: 50,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  header: {
+    height: "100%",
+    width: "100%",
+    resizeMode: "cover",
   },
-  apiDataContainer: {
-    marginVertical: 16, // Add some vertical space for clarity
-    padding: 16,
-    backgroundColor: "#f0f0f0", // Optional: style for better visibility
-    borderRadius: 8,
+  titleText: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 16,
+  },
+  button: {
+    backgroundColor: "#FF6F61",
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 24,
+    elevation: 3,
   },
   reactLogo: {
     height: 178,
@@ -121,7 +95,9 @@ const styles = StyleSheet.create({
     left: 0,
     position: "absolute",
   },
-  text: {
-    color: "#000000", // Use the correct hex code (6 zeros will not render)
+  buttonText: {
+    color: "#FFF",
+    fontSize: 18,
+    fontWeight: "600",
   },
 });
