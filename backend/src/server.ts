@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
+import workoutRoutes from './routes/workoutRoutes';
 import cors from 'cors';
 
 dotenv.config();
@@ -24,6 +25,8 @@ mongoose
 
 app.use('/api/auth', authRoutes);
 app.use('/api', userRoutes);
+app.use('/api/workouts', workoutRoutes);
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
