@@ -2,31 +2,52 @@ import React, { useState, useEffect } from "react";
 import { ScrollView, View, TextInput, TouchableOpacity, Text, StyleSheet, useColorScheme } from "react-native";
 import { addWorkout, getExercises } from "@/api/workoutApi";
 import { ExerciseData } from "@/api/types"; // Adjust the import based on your project structure
+import RNPickerSelect from "react-native-picker-select";
 
-const AddExercise: React.FC = () => {
+const CreateWorkout: React.FC = () => {
   const colorScheme = useColorScheme();
   const [exerciseName, setExerciseName] = useState("");
+  const [exercises, setExercises] = useState<ExerciseData[]>([]);
+  const [selectedWorkout, setSelectedWorkout] = useState<string | null>(null); // State to manage the selected workout
 
   const styles = getStyles(colorScheme as "light" | "dark" | null);
 
-  const handleSaveExercise = () => {
-    addWorkout(exerciseName); // Add new workout
-    setExerciseName(""); // Clear input after saving
-  };
+  // Fetch exercises when the component mounts
+  useEffect(() => {
+    const fetchExercises = async () => {
+      try {
+        const data = await getExercises();
+        setExercises(data);
+      } catch (error) {
+        console.error("Failed to fetch exercises:", error);
+      }
+    };
+
+    fetchExercises();
+  }, []);
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.form}>
-        <Text style={styles.label}>Exercise Name:</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter exercise name"
-          value={exerciseName}
-          onChangeText={setExerciseName}
+    
+        <RNPickerSelect
+          onValueChange={(value) => setSelectedWorkout(value)}
+          items={exercises.map((exercise) => ({
+            label: exercise.exercise, // Exercise name as label
+            value: exercise._id,      // Exercise ID as value
+          }))}
+          style={{
+            inputAndroid: styles.picker,
+            inputIOS: styles.picker,
+          }}
+          placeholder={{
+            label: "Select workout type",
+            value: null,
+            color: "#666",
+          }}
+          value={selectedWorkout} // Set the current selected value
         />
-        <TouchableOpacity style={styles.saveExerciseButton} onPress={handleSaveExercise}>
-          <Text style={styles.buttonText}>Save Exercise</Text>
-        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -71,13 +92,21 @@ const getStyles = (colorScheme: "light" | "dark" | null) => {
       color: isDarkMode ? "#fff" : "#000",
       fontWeight: "bold",
     },
+    picker: {
+      color: isDarkMode ? "#fff" : "#000",
+      marginVertical: 20,
+      paddingVertical: 10,
+      paddingHorizontal: 10,
+      backgroundColor: isDarkMode ? "#333" : "#f0f0f0",
+      borderRadius: 5,
+    },
     exercisesList: {
       marginTop: 20,
     },
-    exerciseText:{
+    exerciseText: {
       color: isDarkMode ? "#fff" : "#000",
     },
   });
 };
 
-export default AddExercise;
+export default CreateWorkout;

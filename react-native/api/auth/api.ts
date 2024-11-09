@@ -41,8 +41,16 @@ export const removeAuthHeader = async () => {
 
 export const getUserInfo = async (): Promise<UserInfo> => {
   try {
+
+    const token = await AsyncStorage.getItem("token");
+
+    // If token exists, set the Authorization header
+    if (token) {
+      instance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    } else {
+      throw new Error("Token is not available");
+    }
     const response = await instance.get("/auth/me");
-    console.log(response)
     return response.data;
   } catch (error) {
     console.error("Failed to fetch user info:", error);

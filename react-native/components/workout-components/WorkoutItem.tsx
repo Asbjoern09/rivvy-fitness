@@ -1,5 +1,5 @@
 // src/components/WorkoutItem.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   TouchableOpacity,
@@ -9,22 +9,34 @@ import {
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import NumberCircle from "./NumberCircle";
+import { ExerciseData } from "@/api/types";
+import { getExercises } from "@/api/workoutApi";
 
-const workoutTypes = [
-  { label: "Cardio", value: "cardio" },
-  { label: "Strength", value: "strength" },
-  { label: "Yoga", value: "yoga" },
-  { label: "Pilates", value: "pilates" },
-];
+interface WorkoutItemProps {
+  onRemove?: () => void;
+  isRemovable?: boolean;
+}
 
-const WorkoutItem: React.FC = () => {
-  const [counters, setCounters] = useState<number[]>([0, 0, 0, 0, 0]); // Start with 5 counters
+const WorkoutItem: React.FC<WorkoutItemProps> = ({ onRemove, isRemovable = true }) => {
+  const [counters, setCounters] = useState<number[]>([0, 0, 0, 0, 0]);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
-  const [selectedWorkout, setSelectedWorkout] = useState<string | undefined>(
-    undefined
-  );
+  const [selectedWorkout, setSelectedWorkout] = useState<string | null>(null);
+  const [exercises, setExercises] = useState<ExerciseData[]>([]);
 
-  const colorScheme = useColorScheme(); // Detect color scheme
+  useEffect(() => {
+    const fetchExercises = async () => {
+      try {
+        const data = await getExercises();
+        setExercises(data);
+      } catch (error) {
+        console.error("Failed to fetch exercises:", error);
+      }
+    };
+
+    fetchExercises();
+  }, []);
+
+  const colorScheme = useColorScheme();
 
   const incrementCounter = (index: number) => {
     setCounters((currentCounters) => {
@@ -50,14 +62,17 @@ const WorkoutItem: React.FC = () => {
     setIsEditMode(!isEditMode);
   };
 
-  const styles = getStyles(colorScheme as "light" | "dark" | null); // Assert type
+  const styles = getStyles(colorScheme as "light" | "dark" | null);
 
   return (
     <View style={styles.listItem}>
       <View style={styles.header}>
         <RNPickerSelect
           onValueChange={(value) => setSelectedWorkout(value)}
-          items={workoutTypes}
+          items={exercises.map((exercise) => ({
+            label: exercise.exercise,
+            value: exercise._id,
+          }))}
           style={{
             inputAndroid: styles.picker,
             inputIOS: styles.picker,
@@ -67,20 +82,31 @@ const WorkoutItem: React.FC = () => {
             value: null,
             color: "#666",
           }}
+          value={selectedWorkout}
         />
-        <TouchableOpacity
-          onPress={toggleEditMode}
-          style={[styles.editButton, isEditMode && styles.editButtonActive]}
-        >
-          <Text
-            style={[
-              styles.editButtonText,
-              isEditMode && styles.editButtonTextActive,
-            ]}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            onPress={toggleEditMode}
+            style={[styles.editButton, isEditMode && styles.editButtonActive]}
           >
-            Edit
-          </Text>
-        </TouchableOpacity>
+            <Text
+              style={[
+                styles.editButtonText,
+                isEditMode && styles.editButtonTextActive,
+              ]}
+            >
+              Edit
+            </Text>
+          </TouchableOpacity>
+          {isRemovable && onRemove && (
+            <TouchableOpacity
+              onPress={onRemove}
+              style={styles.removeButton}
+            >
+              <Text style={styles.removeButtonText}>✕</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
       <View style={styles.numbersContainer}>
         {counters.map((count, index) => (
@@ -102,7 +128,6 @@ const WorkoutItem: React.FC = () => {
   );
 };
 
-// Function to get styles based on color scheme
 const getStyles = (colorScheme: "light" | "dark" | null) => {
   const isDarkMode = colorScheme === "dark";
 
@@ -118,6 +143,11 @@ const getStyles = (colorScheme: "light" | "dark" | null) => {
       alignItems: "center",
       marginBottom: 8,
     },
+    buttonContainer: {
+      flexDirection: 'row',
+      gap: 8,
+      marginLeft: 'auto',
+    },
     picker: {
       flex: 1,
       height: 40,
@@ -129,7 +159,6 @@ const getStyles = (colorScheme: "light" | "dark" | null) => {
       backgroundColor: isDarkMode ? "#444" : "#fff",
     },
     editButton: {
-      marginLeft: "auto",
       paddingHorizontal: 12,
       paddingVertical: 6,
       borderRadius: 4,
@@ -147,6 +176,19 @@ const getStyles = (colorScheme: "light" | "dark" | null) => {
     },
     editButtonTextActive: {
       color: "#fff",
+    },
+    removeButton: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 4,
+      backgroundColor: isDarkMode ? "#662222" : "#ffcccc",
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    removeButtonText: {
+      color: isDarkMode ? "#fff" : "#cc0000",
+      fontSize: 14,
+      fontWeight: "bold",
     },
     numbersContainer: {
       flexDirection: "row",
