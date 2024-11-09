@@ -7,6 +7,7 @@ const router = Router();
 router.get('/users', protect, userController.getUsers);
 router.get('/users/:id', protect, userController.getUserById);
 
+router.get('/auth/me', protect, userController.getMe)
 export default router;
 
 import { IUser } from '../models/User';

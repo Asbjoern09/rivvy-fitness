@@ -38,3 +38,20 @@ export const getUserById = async (
     next(error);
   }
 };
+
+export const getMe = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = await User.findById(req.user?._id).select("-password");
+    
+    if (!user) {
+      res.status(404).send("User not found");
+      return; // Ensure TypeScript recognizes this as a complete code path
+    }
+    
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).send("Internal server error");
+    return; // Likewise, complete this path for TypeScript
+  }
+};
