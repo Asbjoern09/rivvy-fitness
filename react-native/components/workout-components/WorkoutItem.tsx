@@ -1,5 +1,4 @@
-// src/components/WorkoutItem.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   TouchableOpacity,
@@ -10,31 +9,21 @@ import {
 import RNPickerSelect from "react-native-picker-select";
 import NumberCircle from "./NumberCircle";
 import { ExerciseData } from "@/api/types";
-import { getExercises } from "@/api/workoutApi";
 
 interface WorkoutItemProps {
+  exercises: ExerciseData[];
   onRemove?: () => void;
   isRemovable?: boolean;
 }
 
-const WorkoutItem: React.FC<WorkoutItemProps> = ({ onRemove, isRemovable = true }) => {
+const WorkoutItem: React.FC<WorkoutItemProps> = ({
+  exercises,
+  onRemove,
+  isRemovable = true,
+}) => {
   const [counters, setCounters] = useState<number[]>([0, 0, 0, 0, 0]);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [selectedWorkout, setSelectedWorkout] = useState<string | null>(null);
-  const [exercises, setExercises] = useState<ExerciseData[]>([]);
-
-  useEffect(() => {
-    const fetchExercises = async () => {
-      try {
-        const data = await getExercises();
-        setExercises(data);
-      } catch (error) {
-        console.error("Failed to fetch exercises:", error);
-      }
-    };
-
-    fetchExercises();
-  }, []);
 
   const colorScheme = useColorScheme();
 
@@ -99,10 +88,7 @@ const WorkoutItem: React.FC<WorkoutItemProps> = ({ onRemove, isRemovable = true 
             </Text>
           </TouchableOpacity>
           {isRemovable && onRemove && (
-            <TouchableOpacity
-              onPress={onRemove}
-              style={styles.removeButton}
-            >
+            <TouchableOpacity onPress={onRemove} style={styles.removeButton}>
               <Text style={styles.removeButtonText}>✕</Text>
             </TouchableOpacity>
           )}
@@ -144,9 +130,9 @@ const getStyles = (colorScheme: "light" | "dark" | null) => {
       marginBottom: 8,
     },
     buttonContainer: {
-      flexDirection: 'row',
+      flexDirection: "row",
       gap: 8,
-      marginLeft: 'auto',
+      marginLeft: "auto",
     },
     picker: {
       flex: 1,
@@ -182,8 +168,8 @@ const getStyles = (colorScheme: "light" | "dark" | null) => {
       paddingVertical: 6,
       borderRadius: 4,
       backgroundColor: isDarkMode ? "#662222" : "#ffcccc",
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
     removeButtonText: {
       color: isDarkMode ? "#fff" : "#cc0000",

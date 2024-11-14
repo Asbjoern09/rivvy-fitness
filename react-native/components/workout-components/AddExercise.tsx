@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, View, TextInput, TouchableOpacity, Text, StyleSheet, useColorScheme } from "react-native";
+import {
+  ScrollView,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  useColorScheme,
+} from "react-native";
 import { addWorkout, getExercises } from "@/api/workoutApi";
-import { ExerciseData } from "@/api/types"; // Adjust the import based on your project structure
 
-const AddExercise: React.FC = () => {
+interface AddExerciseProps {
+  onTriggerFetch: () => void;
+}
+const AddExercise: React.FC<AddExerciseProps> = ({ onTriggerFetch }) => {
   const colorScheme = useColorScheme();
   const [exerciseName, setExerciseName] = useState("");
 
@@ -12,6 +22,7 @@ const AddExercise: React.FC = () => {
   const handleSaveExercise = () => {
     addWorkout(exerciseName); // Add new workout
     setExerciseName(""); // Clear input after saving
+    onTriggerFetch();
   };
 
   return (
@@ -24,7 +35,10 @@ const AddExercise: React.FC = () => {
           value={exerciseName}
           onChangeText={setExerciseName}
         />
-        <TouchableOpacity style={styles.saveExerciseButton} onPress={handleSaveExercise}>
+        <TouchableOpacity
+          style={styles.saveExerciseButton}
+          onPress={handleSaveExercise}
+        >
           <Text style={styles.buttonText}>Save Exercise</Text>
         </TouchableOpacity>
       </View>
@@ -74,7 +88,7 @@ const getStyles = (colorScheme: "light" | "dark" | null) => {
     exercisesList: {
       marginTop: 20,
     },
-    exerciseText:{
+    exerciseText: {
       color: isDarkMode ? "#fff" : "#000",
     },
   });
