@@ -1,7 +1,7 @@
 // src/Workout.tsx
 import React from "react";
 import { ScrollView, View, StyleSheet, useColorScheme } from "react-native";
-import WorkoutItem from "../../components/workout-components/WorkoutItem";
+import WorkoutItem from "../components/workout-components/WorkoutItem";
 
 const Workout: React.FC = () => {
   const colorScheme = useColorScheme(); // Detect color scheme

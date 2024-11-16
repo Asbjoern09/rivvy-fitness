@@ -9,6 +9,7 @@ import {
 import AddExercise from "@/components/workout-components/AddExercise";
 import CreateWorkout from "@/components/workout-components/CreateWorkout";
 import WorkoutItem from "@/components/workout-components/WorkoutItem";
+import { ThemedView } from "@/components/ThemedView";
 import AddWorkoutButton from "@/components/workout-components/AddWorkoutButton";
 import { getExercises } from "@/api/workoutApi";
 import { ExerciseData } from "@/api/types";
@@ -59,25 +60,27 @@ const MakeWorkout: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView
-        contentContainerStyle={styles.container}
-        style={styles.scrollView}
-      >
-        <View style={styles.viewContainer}>
-          {workoutItems.map((item) => (
-            <WorkoutItem
-              key={item.id}
-              exercises={exercises}
-              onRemove={() => handleRemoveWorkout(item.id)}
-              isRemovable={workoutItems.length > 1}
-            />
-          ))}
-          <AddWorkoutButton onPress={handleAddWorkout} />
-          <AddExercise onTriggerFetch={handleRefresh} />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <ThemedView style={styles.themedView}>
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView
+          contentContainerStyle={styles.container}
+          style={styles.scrollView}
+        >
+          <View style={styles.viewContainer}>
+            {workoutItems.map((item) => (
+              <WorkoutItem
+                key={item.id}
+                exercises={exercises}
+                onRemove={() => handleRemoveWorkout(item.id)}
+                isRemovable={workoutItems.length > 1}
+              />
+            ))}
+            <AddWorkoutButton onPress={handleAddWorkout} />
+            <AddExercise onTriggerFetch={handleRefresh} />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </ThemedView>
   );
 };
 
@@ -85,7 +88,11 @@ const getStyles = (colorScheme: "light" | "dark" | null) => {
   const isDarkMode = colorScheme === "dark";
 
   return StyleSheet.create({
+    themedView: {
+      flex: 1,
+    },
     safeArea: {
+      marginTop: 60,
       flex: 1,
     },
     scrollView: {

@@ -6,8 +6,8 @@ import {
   StyleSheet,
   useColorScheme,
 } from "react-native";
-import RNPickerSelect from "react-native-picker-select";
 import NumberCircle from "./NumberCircle";
+import WorkoutDropdown from "./WorkoutDropdown";
 import { ExerciseData } from "@/api/types";
 
 interface WorkoutItemProps {
@@ -51,28 +51,24 @@ const WorkoutItem: React.FC<WorkoutItemProps> = ({
     setIsEditMode(!isEditMode);
   };
 
+  const dropdownOptions = exercises.map((exercise) => ({
+    label: exercise.exercise,
+    value: exercise.exercise,
+  }));
+
   const styles = getStyles(colorScheme as "light" | "dark" | null);
 
   return (
     <View style={styles.listItem}>
       <View style={styles.header}>
-        <RNPickerSelect
-          onValueChange={(value) => setSelectedWorkout(value)}
-          items={exercises.map((exercise) => ({
-            label: exercise.exercise,
-            value: exercise._id,
-          }))}
-          style={{
-            inputAndroid: styles.picker,
-            inputIOS: styles.picker,
-          }}
-          placeholder={{
-            label: "Select workout type",
-            value: null,
-            color: "#666",
-          }}
+        <WorkoutDropdown
+          options={dropdownOptions}
           value={selectedWorkout}
+          onChange={(option) => setSelectedWorkout(option.value)}
+          placeholder="Select workout type"
+          containerStyle={styles.dropdownContainer}
         />
+
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             onPress={toggleEditMode}
@@ -94,6 +90,7 @@ const WorkoutItem: React.FC<WorkoutItemProps> = ({
           )}
         </View>
       </View>
+
       <View style={styles.numbersContainer}>
         {counters.map((count, index) => (
           <NumberCircle
@@ -129,20 +126,13 @@ const getStyles = (colorScheme: "light" | "dark" | null) => {
       alignItems: "center",
       marginBottom: 8,
     },
+    dropdownContainer: {
+      flex: 1,
+      marginRight: 8,
+    },
     buttonContainer: {
       flexDirection: "row",
       gap: 8,
-      marginLeft: "auto",
-    },
-    picker: {
-      flex: 1,
-      height: 40,
-      borderWidth: 1,
-      borderColor: isDarkMode ? "#ccc" : "#ddd",
-      borderRadius: 4,
-      paddingHorizontal: 12,
-      color: isDarkMode ? "#fff" : "#666",
-      backgroundColor: isDarkMode ? "#444" : "#fff",
     },
     editButton: {
       paddingHorizontal: 12,

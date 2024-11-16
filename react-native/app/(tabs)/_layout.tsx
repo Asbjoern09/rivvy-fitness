@@ -12,6 +12,11 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarStyle: {
+          backgroundColor: colorScheme === "dark" ? "black" : "white", // Set tab bar background
+          elevation: 0, // Remove shadow on Android
+          borderTopWidth: 0, // Remove border on iOS
+        },
         headerShown: false,
       }}
     >
@@ -28,14 +33,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="workout-session"
+        name="workout-configuration"
         options={{
-          title: "Workout",
+          title: "Create Workout",
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon
-              name={focused ? "barbell" : "barbell-outline"}
-              color={color}
-            />
+            <TabBarIcon name={focused ? "add" : "add-outline"} color={color} />
           ),
         }}
       />
